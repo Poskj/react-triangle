@@ -10,12 +10,14 @@ function Display() {
   
     //ดูว่าค่าสามเหลี่ยมอยู่ในขอบเขตรึเปล่า
     function text_length_limiter(side) {
-      return side < 0 || side > 999999;
+      return side < 0 || side >= 1000000;
     }
   
     //ดูว่าค่า input ใช้ได้กับสามเหลี่ยมรึเปล่า
     function Input_Validater(side1, side2, side3) {
+      const sum3 = side1 + side2
       let isValid = true;
+    
       if (text_length_limiter(side1) || text_length_limiter(side2) || text_length_limiter(side3))
         isValid = false;
       return isValid;
@@ -24,10 +26,13 @@ function Display() {
   
     // ให้ side 1 เป็นด้านแรกของสามเหลี่ยม, side 2 เป็นด้านที่สอง และ side 3 เป็นด้านตรงข้ามมุม
     function Calculation(side1, side2, side3) {
-      const allSides = [side1, side2, side3].sort();
+      let allSides = [parseFloat(side1), parseFloat(side2), parseFloat(side3)];
+      allSides.sort();
       const Side1 = allSides[0];
       const Side2 = allSides[1];
       const Side3 = allSides[2];
+      console.log(allSides)
+      console.log(typeof allSides[0])
 
       if (
         Side1 === Side2 &&
@@ -36,27 +41,37 @@ function Display() {
       ) {
         setResultColor("green");
         return "Equilateral triangle";
-      } else if (
+      }else if (
+        Side1 + Side2 < Side3 ||
+        Side1 + Side3 < Side2 ||
+        Side2 + Side3 < Side1 
+      ) {
+        setResultColor("red");
+        return "Not a triangle";
+      }else if (
         Side1 === Side2 ||
         Side1 === Side3 ||
         Side2 === Side3
       ) {
         setResultColor("green");
         return "Isosceles triangle";
-      } else if (Side3 ** 2 === Side1 ** 2 + Side2 ** 2) {
+      }
+      else if(
+         (parseFloat((Side3 * Side3).toFixed(3)) == (parseFloat((Side1 * Side1) + (Side2 * Side2)).toFixed(3))) ||
+         (parseFloat((Side1 * Side1).toFixed(3)) == (parseFloat((Side2 * Side2) + (Side3 * Side3)).toFixed(3))) ||
+         (parseFloat((Side2 * Side2).toFixed(3)) == (parseFloat((Side1 * Side1) + (Side3 * Side3)).toFixed(3)))
+         ) {
         setResultColor("green");
         return "Right triangle";
-      } else if (
+      }
+        else if (
         Side1 !== Side2 &&
         Side1 !== Side3 &&
         Side2 !== Side3
       ) {
         setResultColor("green");
         return "Scalene triangle";
-      } else {
-        setResultColor("red");
-        return "Not A Triangle";
-      }
+      } 
     }
 
   
@@ -80,6 +95,8 @@ function Display() {
       let side2 = document.getElementById("side2").value;
       let side3 = document.getElementById("side3").value;
 
+      
+
       if (side1 !==" " && side2 !==" " && side3 !==" "){
         document.getElementById("btn").removeAttribute("disabled");
       }      
@@ -91,15 +108,30 @@ function Display() {
         el.value = el.value.substring(0,el.value.length - 1);
        }
      }
-
     
+
+     function zeroRestrict(){
+       var value = document.getElementById('side1').value;
+       if (value.length === 0 && window.event.key === "0"){
+         window.event.preventDefault();
+         return false;
+       }
+       if (window.event.key === "+"){
+        window.event.preventDefault();
+        return false;
+      }if (window.event.key === "-"){
+        window.event.preventDefault();
+        return false;
+      }
+     }
+     
     return (
       <main>
         
         <div className="box">
           <h1 className='header'>
             Enter the length of
-            each sides 
+            each sides to calculate
           </h1>
           <Form onSubmit={handleSubmit}>
             <Form.Group >
@@ -118,6 +150,7 @@ function Display() {
                   class="form-control" required name="balance" min="0.001" max="999999.999" step="0.001" maxlength="10"
                   id="side1"
                   onKeyUp={isEmpty}
+                  // onKeyPress={zeroRestrict}
                   placeholder="side 1 (number only)"
                 />
               </div>
@@ -137,6 +170,7 @@ function Display() {
                   class="form-control" required name="balance" min="0.001" max="999999.999" step="0.001" maxlength="10"
                   id="side2"
                   onkeyup={isEmpty}
+                  // onKeyPress={zeroRestrict}
                   placeholder="side 2 (number only)"
                 />
               </div>
@@ -156,6 +190,7 @@ function Display() {
                   class="form-control" required name="balance" min="0.001" max="999999.999" step="0.001" maxlength="10"
                   id="side3"
                   onkeyup={isEmpty}
+                  // onKeyPress={zeroRestrict}
                   placeholder="side 3 (number only)"
                 />
               </div>
